@@ -1,8 +1,7 @@
 import os
 
 
-def create_dir_if_not_exists(path):
-    print('attempt creation of dir "{}"'.format(path))
+def create_dir_if_not_exists(path: str) -> None:
     try:
         if not os.path.exists(path):
             os.mkdir(path)
