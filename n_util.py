@@ -1,29 +1,18 @@
 import re
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Optional
+from typing import Optional
+from n_util_data_classes import NEntry, NUser
 
-baseUrl = 'https://nhentai.net/g/{}/'
+base_url = 'https://nhentai.net/g/{}/'
 base_thumbnail_url = 'https://t.nhentai.net/galleries/{}/{}t.jpg'
 base_image_url = 'https://i.nhentai.net/galleries/{}/{}.jpg'
-
-
-class NEntry:
-    """Represents a n-hentai doujin entry."""
-
-    def __init__(self, digits: str, gallery_id: str, page_count: int, image_url_list: List[str]):
-        self.digits: str = digits
-        self.gallery_id: str = gallery_id
-        self.page_count: int = page_count
-        self.image_url_list: List[str] = image_url_list
-
-    def __str__(self) -> str:
-        return str(self.__class__) + ": " + str(self.__dict__)
+base_favorite_url = 'https://nhentai.net/favorites/'
 
 
 def get_n_entry(n_digit: str) -> Optional[NEntry]:
     """Returns the doujin entry with the given digit."""
-    r = requests.get(baseUrl.format(n_digit))
+    r = requests.get(base_url.format(n_digit))
     soup = BeautifulSoup(r.text, 'html.parser')
 
     cover_image_url = soup.find(id='cover').img['data-src']
@@ -45,3 +34,13 @@ def parse_to_n_digit(url: str) -> Optional[str]:
     """Parses a n-hentai url to its digit."""
     n_digit_match = re.search('([1-9][0-9]*)', url)
     return n_digit_match.group(1) if n_digit_match is not None else None
+
+
+def get_n_user() -> Optional[NUser]:
+    r = requests.get(base_favorite_url)
+    if r.status_code != 200:
+        return None
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    # todo: parse request
+    return NUser('', 0, 0, [])
