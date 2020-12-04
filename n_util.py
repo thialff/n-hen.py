@@ -5,14 +5,15 @@ from typing import Optional
 from n_util_data_classes import NEntry, NUser, MinimizedNEntry
 
 base_url = 'https://nhentai.net/g/{}/'
-base_thumbnail_url = 'https://t.nhentai.net/galleries/{}/{}t.jpg'
-base_image_url = 'https://i.nhentai.net/galleries/{}/{}.jpg'
+base_thumbnail_url = 'https://t.nhentai.net/galleries/{}/{}t.{}'
+base_image_url = 'https://i.nhentai.net/galleries/{}/{}.{}'
 base_favorite_url = 'https://nhentai.net/favorites/'
 paged_favorite_url = 'https://nhentai.net/favorites/?page={}'
 
 
 def get_n_entry(n_digit: str) -> Optional[NEntry]:
     """Returns the doujin entry with the given digit."""
+
     r = requests.get(base_url.format(n_digit))
     soup = BeautifulSoup(r.text, 'html.parser')
 
@@ -22,17 +23,24 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
         return None
     gallery_id = gallery_id_match.group(1)
 
-    page_count = len(soup.find(id='thumbnail-container').find('div', class_='thumbs').contents)
+    thumbnails = soup.find(id='thumbnail-container').find('div', class_='thumbs').contents
+
+    page_count = len(thumbnails)
 
     image_url_list = []
-    for i in range(page_count):
-        image_url_list.append(base_image_url.format(gallery_id, i + 1))
+    for i, entry in enumerate(thumbnails):
+        print(i, entry)
+        file_type_match = re.search(r'/galleries/[1-9][0-9]*/[1-9][0-9]*t\.([a-z]+)', entry.find('a').find('img')['data-src'])
+        if file_type_match is None:
+            return None
+        image_url_list.append(base_image_url.format(gallery_id, i + 1, file_type_match.group(1)))
 
     return NEntry(n_digit, gallery_id, page_count, image_url_list)
 
 
 def parse_to_n_digit(url: str) -> Optional[str]:
     """Parses a n-hentai url to its digit."""
+
     n_digit_match = re.search('([1-9][0-9]*)', url)
     return n_digit_match.group(1) if n_digit_match is not None else None
 
