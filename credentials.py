@@ -1,3 +1,1 @@
-sessionId = ''
-csrf_token = ''
-__cf_druid = ''
+session_id: str = ''
