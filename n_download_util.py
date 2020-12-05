@@ -1,6 +1,11 @@
 import urllib.request
 import os
 from typing import List
+from n_util import NUser
+from n_util import get_n_entry
+import time
+
+delay: int = 5
 
 
 def save_files_to_dir(file_url_list: List[str], path: str) -> None:
@@ -16,3 +21,27 @@ def save_files_to_dir(file_url_list: List[str], path: str) -> None:
         filename = os.path.join(path, file_url.split('/')[-1])
         print('writing {} to {}'.format(file_url, filename))
         urllib.request.urlretrieve(file_url, filename)
+
+
+def download_all_favorites(n_user: NUser, base_dir: str) -> None:
+    print('downloading {}\'s {} favorites...'.format(n_user.username, n_user.fav_count))
+    for min_entry in n_user.favorite_list:
+        print('downloading entry with id {}'.format(min_entry.n_id))
+        entry = get_n_entry(min_entry.n_id)
+        if entry is None:
+            print('no connection possible, skipping...')
+            continue
+
+        if not os.path.exists(base_dir):
+            print('base directory does not exist, aborting...')
+            break
+        save_dir = os.path.join(base_dir, entry.digits)
+        if os.path.exists(save_dir):
+            print('entry already exists, skipping...')
+            continue
+        else:
+            os.mkdir(save_dir)
+        save_files_to_dir(entry.image_url_list, save_dir)
+        print('waiting for {} seconds...'.format(delay))
+        time.sleep(delay)
+    print('download finished')
