@@ -29,7 +29,6 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
 
     image_url_list = []
     for i, entry in enumerate(thumbnails):
-        print(i, entry)
         file_type_match = re.search(r'/galleries/[1-9][0-9]*/[1-9][0-9]*t\.([a-z]+)', entry.find('a').find('img')['data-src'])
         if file_type_match is None:
             return None
