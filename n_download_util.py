@@ -45,3 +45,4 @@ def download_all_favorites(n_user: NUser, base_dir: str) -> None:
         print('waiting for {} seconds...'.format(delay))
         time.sleep(delay)
     print('download finished')
+
