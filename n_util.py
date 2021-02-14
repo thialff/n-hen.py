@@ -3,12 +3,19 @@ import requests
 from bs4 import BeautifulSoup
 from typing import Optional
 from n_util_data_classes import NEntry, NUser, MinimizedNEntry
+import sys
 
 base_url = 'https://nhentai.net/g/{}/'
 base_thumbnail_url = 'https://t.nhentai.net/galleries/{}/{}t.{}'
 base_image_url = 'https://i.nhentai.net/galleries/{}/{}.{}'
 base_favorite_url = 'https://nhentai.net/favorites/'
 paged_favorite_url = 'https://nhentai.net/favorites/?page={}'
+
+
+def __match_tag_container(tag, match):
+    if tag.name != 'div':
+        return False
+    return match in tag.next
 
 
 def get_n_entry(n_digit: str) -> Optional[NEntry]:
@@ -23,6 +30,25 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
         return None
     gallery_id = gallery_id_match.group(1)
 
+    tag_container = soup.find(id='info').find(id='tags')
+
+    # parse artists
+    artist_divs = tag_container.find_all(lambda tag: __match_tag_container(tag, 'Artists:'))
+    if len(artist_divs) != 1:
+        print('Tag container \'Artists\' not found exactly once.', file=sys.stderr)
+        return None
+    artists = list(map(lambda x: x.text, artist_divs[0].find_all('span', class_='name')))
+
+    # parse title
+    title = ''
+
+    # parse tags
+    tags_divs = tag_container.find_all(lambda tag: __match_tag_container(tag, 'Tags:'))
+    if len(tags_divs) != 1:
+        print('Tag container \'Tags\' not found exactly once.', file=sys.stderr)
+        return None
+    tags = list(map(lambda x: x.text, tags_divs[0].find_all('span', class_='name')))
+
     thumbnails = soup.find(id='thumbnail-container').find('div', class_='thumbs').contents
 
     page_count = len(thumbnails)
@@ -34,7 +60,7 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
             return None
         image_url_list.append(base_image_url.format(gallery_id, i + 1, file_type_match.group(1)))
 
-    return NEntry(n_digit, gallery_id, page_count, image_url_list)
+    return NEntry(digits=n_digit, gallery_id=gallery_id, page_count=page_count, image_url_list=image_url_list, artists=artists, title=title, tags=tags)
 
 
 def parse_to_n_digit(url: str) -> Optional[str]:
