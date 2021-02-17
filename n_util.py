@@ -24,6 +24,7 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
     r = requests.get(base_url.format(n_digit))
     soup = BeautifulSoup(r.text, 'html.parser')
 
+    # parse gallery id
     cover_image_url = soup.find(id='cover').img['data-src']
     gallery_id_match = re.search('/galleries/([0-9]*)/', cover_image_url)
     if gallery_id_match is None:
@@ -32,15 +33,15 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
 
     tag_container = soup.find(id='info').find(id='tags')
 
+    # parse title
+    title = soup.find(id='info').find('h1', class_='title').find("span", class_='pretty').text
+
     # parse artists
     artist_divs = tag_container.find_all(lambda tag: __match_tag_container(tag, 'Artists:'))
     if len(artist_divs) != 1:
         print('Tag container \'Artists\' not found exactly once.', file=sys.stderr)
         return None
     artists = list(map(lambda x: x.text, artist_divs[0].find_all('span', class_='name')))
-
-    # parse title
-    title = ''
 
     # parse tags
     tags_divs = tag_container.find_all(lambda tag: __match_tag_container(tag, 'Tags:'))
