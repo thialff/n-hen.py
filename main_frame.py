@@ -1,5 +1,7 @@
+import io
 from tkinter import *
 from PIL import Image, ImageTk
+from urllib.request import urlopen
 
 import n_util
 
@@ -114,5 +116,32 @@ btn_download.pack()
 
 label_status = Label(master=frame_download, text='3/24', anchor=E)
 label_status.pack()
+
+
+def updateDownloadView(entry: n_util.NEntry):
+    label_name_value.configure(text=entry.title)
+    label_digits_value.configure(text=entry.digits)
+    label_artists_value.configure(text=', '.join(entry.artists))
+    label_tags_value.configure(text=', '.join(entry.tags))
+    label_pages_value.configure(text=entry.page_count)
+
+    raw_data = urlopen(entry.cover_url).read()
+    global thumbnail
+    thumbnail = Image.open(io.BytesIO(raw_data)).resize((200, 300), Image.ANTIALIAS)
+    thumbnail = ImageTk.PhotoImage(thumbnail)
+    label_image_info.configure(image=thumbnail)
+
+
+def onSearch():
+    print('onSearch')
+    digits = n_util.parse_to_n_digit(entry_digits.get())
+    if digits is None:
+        return
+    entry = n_util.get_n_entry(digits)
+    print(entry)
+    updateDownloadView(entry)
+
+
+button_digits.configure(command=onSearch)
 
 root.mainloop()

@@ -54,6 +54,8 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
 
     page_count = len(thumbnails)
 
+    cover_url = soup.find(id='cover').find('img', class_='lazyload')['data-src']
+
     image_url_list = []
     for i, entry in enumerate(thumbnails):
         file_type_match = re.search(r'/galleries/[1-9][0-9]*/[1-9][0-9]*t\.([a-z]+)', entry.find('a').find('img')['data-src'])
@@ -61,7 +63,7 @@ def get_n_entry(n_digit: str) -> Optional[NEntry]:
             return None
         image_url_list.append(base_image_url.format(gallery_id, i + 1, file_type_match.group(1)))
 
-    return NEntry(digits=n_digit, gallery_id=gallery_id, page_count=page_count, image_url_list=image_url_list, artists=artists, title=title, tags=tags)
+    return NEntry(digits=n_digit, gallery_id=gallery_id, page_count=page_count, image_url_list=image_url_list, artists=artists, title=title, tags=tags, cover_url=cover_url)
 
 
 def parse_to_n_digit(url: str) -> Optional[str]:
