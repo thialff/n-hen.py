@@ -1,7 +1,12 @@
 import io
+import os
+from time import sleep
 from tkinter import *
+from tkinter import filedialog
 from PIL import Image, ImageTk
 from urllib.request import urlopen
+import dir_util as du
+import n_download_util as ndu
 
 import n_util
 
@@ -39,6 +44,7 @@ btn_3.pack(fill=BOTH, expand=1)
 
 # --
 
+n_entry = None
 
 display_frame = Frame(master=root)
 display_frame.pack_propagate(0)
@@ -95,17 +101,24 @@ label_pages_value.grid(row=4, column=1, columnspan=2, sticky=W)
 # ---
 
 frame_directory = Frame(master=display_frame)
-frame_directory.pack()
+frame_directory.pack(fill=X)
 
-entry_directory = Entry(master=frame_directory, state=DISABLED)
-entry_directory.grid(row=0, column=0, columnspan=3)
+entry_directory_value = StringVar()
+entry_directory_value.set(os.path.join(os.getcwd(), 'saves'))
+entry_directory = Entry(master=frame_directory, state=DISABLED, textvariable=entry_directory_value)
+entry_directory.grid(row=0, column=0, columnspan=2, sticky='ew')
 
-entry_file_name = Entry(master=frame_directory)
+label_separator = Label(master=frame_directory, text=os.path.sep, font=text_font)
+label_separator.grid(row=0, column=2)
+
+entry_file_name_value = StringVar()
+entry_file_name = Entry(master=frame_directory, state=DISABLED, textvariable=entry_file_name_value)
 entry_file_name.grid(row=0, column=3)
 
 btn_choose_dir = Button(master=frame_directory, text='Choose')
 btn_choose_dir.grid(row=0, column=4)
 
+frame_directory.grid_columnconfigure(0, weight=1)
 # ---
 
 frame_download = Frame(master=display_frame)
@@ -114,7 +127,9 @@ frame_download.pack()
 btn_download = Button(master=frame_download, text='Download')
 btn_download.pack()
 
-label_status = Label(master=frame_download, text='3/24', anchor=E)
+label_status_value = StringVar()
+label_status_value.set('')
+label_status = Label(master=frame_download, textvariable=label_status_value, anchor=E)
 label_status.pack()
 
 
@@ -131,17 +146,52 @@ def updateDownloadView(entry: n_util.NEntry):
     thumbnail = ImageTk.PhotoImage(thumbnail)
     label_image_info.configure(image=thumbnail)
 
+    entry_file_name_value.set(entry.digits)
+
 
 def onSearch():
     print('onSearch')
     digits = n_util.parse_to_n_digit(entry_digits.get())
     if digits is None:
         return
-    entry = n_util.get_n_entry(digits)
-    print(entry)
-    updateDownloadView(entry)
+    global n_entry
+    n_entry = n_util.get_n_entry(digits)
+    print(n_entry)
+    updateDownloadView(n_entry)
+
+
+def updateStatusLabel(current, total):
+    label_status_value.set(f'Downloading... {current}/{total}')
+    global label_status
+    label_status.update_idletasks()
+    if current == total:
+        sleep(1)
+        label_status_value.set('')
+        label_status.update_idletasks()
+
+
+def onDownload():
+    print('onDownload')
+    global n_entry
+    if n_entry is None:
+        return
+    du.create_dir_if_not_exists(entry_directory_value.get())
+    save_dir = os.path.join(entry_directory_value.get(), entry_file_name_value.get())
+    du.create_dir_if_not_exists(save_dir)
+    global label_status_value
+    ndu.save_files_to_dir(n_entry.image_url_list, save_dir, updateStatusLabel)
+
+
+def onChoose():
+    print('onChoose')
+    filename = filedialog.askdirectory(initialdir=os.path.join(os.getcwd(), 'saves'))
+    print(f'directory with path {filename} selected')
+    global entry_directory_value
+    entry_directory_value.set(filename)
 
 
 button_digits.configure(command=onSearch)
+btn_download.configure(command=onDownload)
+btn_choose_dir.configure(command=onChoose)
 
 root.mainloop()
