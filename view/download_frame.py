@@ -19,10 +19,10 @@ class DownloadFrame(Frame):
         self.n_entry = None
         # --
 
-        label_headline = Label(master=self.master, text='Downloads')
+        label_headline = Label(master=self, text='Downloads', font=vc.HEADER_FONT)
         label_headline.pack()
 
-        frame_digit_entry = Frame(master=self.master)
+        frame_digit_entry = Frame(master=self)
         frame_digit_entry.pack()
 
         self.entry_digits = Entry(master=frame_digit_entry)
@@ -31,7 +31,7 @@ class DownloadFrame(Frame):
         self.button_digits = Button(master=frame_digit_entry, text='Search')
         self.button_digits.grid(column=2, row=0)
 
-        frame_info = Frame(master=self.master)
+        frame_info = Frame(master=self)
         frame_info.pack()
 
         frame_info_left = Frame(master=frame_info)
@@ -71,7 +71,7 @@ class DownloadFrame(Frame):
 
         # ---
 
-        frame_directory = Frame(master=self.master)
+        frame_directory = Frame(master=self)
         frame_directory.pack(fill=X)
 
         self.entry_directory_value = StringVar()
@@ -92,7 +92,7 @@ class DownloadFrame(Frame):
         frame_directory.grid_columnconfigure(0, weight=1)
         # ---
 
-        frame_download = Frame(master=self.master)
+        frame_download = Frame(master=self)
         frame_download.pack()
 
         self.btn_download = Button(master=frame_download, text='Download')
@@ -106,6 +106,8 @@ class DownloadFrame(Frame):
         self.setSearchButtonCommand(lambda: onSearch(self))
         self.setChooseDirButtonCommand(lambda: onChoose(self))
         self.setDownloadButtonCommand(lambda: onDownload(self))
+
+        self.pack_propagate(0)
 
     def updateDownloadView(self, entry: n_util.NEntry):
         self.label_name_value.configure(text=entry.title)
