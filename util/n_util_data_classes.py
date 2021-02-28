@@ -4,13 +4,14 @@ from typing import List
 class NEntry:
     """Represents a n-hentai doujin entry."""
 
-    def __init__(self, digits: str, gallery_id: str, title: str, artists: List[str], tags: List[str], page_count: int, image_url_list: List[str]):
+    def __init__(self, digits: str, gallery_id: str, title: str, artists: List[str], tags: List[str], page_count: int, cover_url: str, image_url_list: List[str]):
         self.digits: str = digits
         self.gallery_id: str = gallery_id
         self.title: str = title
         self.artists: List[str] = artists
         self.tags: List[str] = tags
         self.page_count: int = page_count
+        self.cover_url: str = cover_url
         self.image_url_list: List[str] = image_url_list
 
     def __str__(self) -> str:

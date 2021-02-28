@@ -1,9 +1,7 @@
 import os
 
-import n_util as nu
-import dir_util as du
-import n_download_util as ndu
-from credentials import session_id
+from util import dir_util as du, n_download_util as ndu, n_util as nu
+from util.credentials import session_id
 
 base_dir = 'saves'
 request_url = 'https://nhentai.net/g/144725/'
