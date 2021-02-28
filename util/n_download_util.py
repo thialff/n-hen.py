@@ -1,8 +1,8 @@
 import urllib.request
 import os
 from typing import List
-from n_util import NUser
-from n_util import get_n_entry
+from util.n_util import NUser
+from util.n_util import get_n_entry
 import time
 
 delay: int = 5

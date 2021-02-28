@@ -2,7 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional
-from n_util_data_classes import NEntry, NUser, MinimizedNEntry
+from util.n_util_data_classes import NEntry, NUser, MinimizedNEntry
 import sys
 
 base_url = 'https://nhentai.net/g/{}/'

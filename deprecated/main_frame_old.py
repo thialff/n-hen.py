@@ -4,7 +4,7 @@ from enum import Enum
 from download.view import DownloadPage
 from download.model import DownloadModel
 
-import n_util
+from util import n_util
 
 HEADER_FONT = "Roboto 20 bold"
 TEXT_FONT = "Roboto 12"
