@@ -75,7 +75,7 @@ class DownloadFrame(Frame):
         frame_directory.pack(fill=X)
 
         self.entry_directory_value = StringVar()
-        self.entry_directory_value.set(os.path.join(os.getcwd(), '../saves'))
+        self.entry_directory_value.set(os.path.join(os.getcwd(), 'saves'))
         entry_directory = Entry(master=frame_directory, state=DISABLED, textvariable=self.entry_directory_value)
         entry_directory.grid(row=0, column=0, columnspan=2, sticky='ew')
 
