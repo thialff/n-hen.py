@@ -166,6 +166,6 @@ def onDownload(download_panel: DownloadFrame):
 
 def onChoose(download_panel: DownloadFrame):
     print('onChoose')
-    filename = filedialog.askdirectory(initialdir=os.path.join(os.getcwd(), '../saves'))
+    filename = filedialog.askdirectory(initialdir=os.path.join(os.getcwd(), 'saves'))
     print(f'directory with path {filename} selected')
     download_panel.entry_directory_value.set(filename)

@@ -1,6 +1,9 @@
 from tkinter import *
+from typing import Optional
+
 from view import view_constants as vc
 from view.favorite_entry_frame import FavoriteEntryFrame
+from util import n_util
 
 
 class FavoritesFrame(Frame):
@@ -8,9 +11,8 @@ class FavoritesFrame(Frame):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        # --
-        self.session_id = ''
-        self.favorites = []
+        # -- model --
+        self.n_user: Optional[n_util.NUser] = None
         # --
 
         label_headline = Label(master=self, text='Favorites', font=vc.HEADER_FONT)
@@ -53,9 +55,6 @@ class FavoritesFrame(Frame):
 
         self.favorites_scroll_canvas.create_window((0, 0), window=self.favorites_scroll_frame, anchor='nw')
         self.favorites_scroll_canvas.configure(yscrollcommand=self.favorites_scrollbar.set)
-
-        for i in range(0, 30):
-            self.addItemToScrollList(i)
         # --
 
         # --
@@ -89,12 +88,35 @@ class FavoritesFrame(Frame):
         self.label_page_progress.pack()
         # --
 
+        self.setSessionIdButtonCommand(lambda: onLoad(self))
+
     def setSessionIdButtonCommand(self, command):
         self.button_session_id.configure(command=command)
 
     def setDirectoryCommand(self, command):
         self.button_directory.configure(command=command)
 
-    def addItemToScrollList(self, num):
-        frame = FavoriteEntryFrame(master=self.favorites_scroll_frame, digits=num, name='Nekopara 01')
+    def addItemToScrollList(self, digits: str, name: str):
+        frame = FavoriteEntryFrame(master=self.favorites_scroll_frame, digits=digits, name=name)
         frame.pack(fill=X)
+
+    def updateView(self):
+        if self.n_user is None:
+            for child in self.favorites_scroll_frame.winfo_children():
+                child.destroy()
+        else:
+            for min_entry in self.n_user.favorite_list:
+                self.addItemToScrollList(digits=min_entry.n_id, name=min_entry.name)
+
+
+def onLoad(favorites_frame: FavoritesFrame):
+    session_id = favorites_frame.entry_session_id.get()
+    if session_id is None or session_id == '':
+        favorites_frame.n_user = None
+        favorites_frame.updateView()
+        print('no sessionId provided')
+        return
+    favorites_frame.n_user = n_util.get_n_user(session_id)
+    if favorites_frame.n_user is None:
+        print('invalid sessionId')
+    favorites_frame.updateView()

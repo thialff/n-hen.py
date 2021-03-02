@@ -118,7 +118,9 @@ def get_n_user(user_auth_cookie: str) -> Optional[NUser]:
             gallery_id_match = re.search(r'/galleries/([1-9][0-9]*)/thumb\.', a_cover.find('img', class_='lazyload')['data-src'])
             if gallery_id_match is None:
                 return None
-            favorite_list.append(MinimizedNEntry(n_id_match.group(1), gallery_id_match.group(1)))
+            full_name = div_favorite.find('div', class_='caption').text
+            normalized_name = __normalizeName(full_name)
+            favorite_list.append(MinimizedNEntry(n_id_match.group(1), gallery_id_match.group(1), full_name, normalized_name))
 
         # get new page and soup
         if i + 2 > page_count:
@@ -130,3 +132,12 @@ def get_n_user(user_auth_cookie: str) -> Optional[NUser]:
             soup = BeautifulSoup(r.text, 'html.parser')
 
     return NUser(user_name, fav_count, page_count, favorite_list)
+
+
+def __normalizeName(full_name: str):
+    normalized_name_match = re.search(r'](.*?)\[', full_name)
+    if normalized_name_match is None:
+        return full_name
+    else:
+        normalized_name = normalized_name_match.group(1)
+        return normalized_name.strip()
