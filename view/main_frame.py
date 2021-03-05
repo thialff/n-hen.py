@@ -20,7 +20,7 @@ class MainFrame(Tk):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-        self.geometry('700x600')
+        self.geometry('700x650')
 
         # sidebar
         menu_frame = Frame(master=self, width=MENU_WIDTH)

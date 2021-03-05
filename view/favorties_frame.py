@@ -38,6 +38,25 @@ class FavoritesFrame(Frame):
         # --
 
         # --
+        user_info_frame = Frame(master=self)
+        user_info_frame.pack(fill=X, padx=10, pady=10)
+
+        pad_x = 10
+
+        user_name_label = Label(master=user_info_frame, text='Username', font=vc.LABEL_FONT)
+        user_name_label.grid(row=0, column=0, sticky=W)
+        self.username_label_value = Label(master=user_info_frame, text='', font=vc.TEXT_FONT)
+        self.username_label_value.grid(row=0, column=1, sticky=W, padx=pad_x)
+
+        user_fav_count = Label(master=user_info_frame, text='Favorites count', font=vc.LABEL_FONT)
+        user_fav_count.grid(row=1, column=0, sticky=W)
+        self.user_fav_count_value = Label(master=user_info_frame, text='', font=vc.TEXT_FONT)
+        self.user_fav_count_value.grid(row=1, column=1, sticky=W, padx=pad_x)
+
+        user_info_frame.columnconfigure(1, weight=1)
+        # --
+
+        # --
         favorites_list_frame = Frame(master=self, height=350, relief=SUNKEN, bd=2, padx=2, pady=2)
         favorites_list_frame.pack(fill=X)
         favorites_list_frame.pack_propagate(0)
@@ -112,6 +131,8 @@ class FavoritesFrame(Frame):
             for child in self.favorites_scroll_frame.winfo_children():
                 child.destroy()
         else:
+            self.username_label_value.configure(text=self.n_user.username)
+            self.user_fav_count_value.configure(text=self.n_user.fav_count)
             for min_entry in self.n_user.favorite_list:
                 self.addItemToScrollList(digits=min_entry.n_id, name=min_entry.name)
 
