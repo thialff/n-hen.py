@@ -4,6 +4,9 @@ from typing import Optional
 from view import view_constants as vc
 from view.favorite_entry_frame import FavoriteEntryFrame
 from util import n_util
+import os
+from tkinter import filedialog
+from util import dir_util
 
 
 class FavoritesFrame(Frame):
@@ -61,7 +64,10 @@ class FavoritesFrame(Frame):
         directory_frame = Frame(master=self)
         directory_frame.pack(fill=X)
 
-        self.entry_directory = Entry(master=directory_frame)
+        self.entry_directory_value = StringVar()
+        self.entry_directory_value.set(os.path.join(os.getcwd(), 'favorites'))
+
+        self.entry_directory = Entry(master=directory_frame, state=DISABLED, textvariable=self.entry_directory_value)
         self.entry_directory.grid(row=0, column=0, sticky='ew')
 
         self.button_directory = Button(master=directory_frame, text='Choose', font=vc.TEXT_FONT)
@@ -89,6 +95,7 @@ class FavoritesFrame(Frame):
         # --
 
         self.setSessionIdButtonCommand(lambda: onLoad(self))
+        self.setDirectoryCommand(lambda: onChoose(self))
 
     def setSessionIdButtonCommand(self, command):
         self.button_session_id.configure(command=command)
@@ -120,3 +127,10 @@ def onLoad(favorites_frame: FavoritesFrame):
     if favorites_frame.n_user is None:
         print('invalid sessionId')
     favorites_frame.updateView()
+
+
+def onChoose(favorites_frame: FavoritesFrame):
+    dir_util.create_dir_if_not_exists(favorites_frame.entry_directory_value.get())
+    filename = filedialog.askdirectory(initialdir=favorites_frame.entry_directory_value.get(), mustexist=True)
+    if len(filename) != 0:
+        favorites_frame.entry_directory_value.set(filename)

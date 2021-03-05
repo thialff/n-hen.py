@@ -165,7 +165,10 @@ def onDownload(download_panel: DownloadFrame):
 
 
 def onChoose(download_panel: DownloadFrame):
+    current_dir_name = download_panel.entry_directory_value.get()
+    du.create_dir_if_not_exists(current_dir_name)
     print('onChoose')
-    filename = filedialog.askdirectory(initialdir=os.path.join(os.getcwd(), 'saves'))
+    filename = filedialog.askdirectory(initialdir=current_dir_name, mustexist=True)
     print(f'directory with path {filename} selected')
-    download_panel.entry_directory_value.set(filename)
+    if len(filename) != 0:
+        download_panel.entry_directory_value.set(filename)
