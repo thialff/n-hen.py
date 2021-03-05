@@ -100,11 +100,15 @@ def get_n_user(user_auth_cookie: str) -> Optional[NUser]:
     fav_count = int(fav_count_match.group(1))
 
     # page_count
-    last_page_link = div_content.find('section').find(class_='last')['href']
-    page_count_match = re.search(r'/favorites/\?page=([1-9][0-9]*)', last_page_link)
-    if page_count_match is None:
-        return None
-    page_count = int(page_count_match.group(1))
+    last_page_link = div_content.find('section')
+    if last_page_link is None:
+        page_count = 1
+    else:
+        last_page_link = last_page_link.find(class_='last')['href']
+        page_count_match = re.search(r'/favorites/\?page=([1-9][0-9]*)', last_page_link)
+        if page_count_match is None:
+            return None
+        page_count = int(page_count_match.group(1))
 
     # parse favorites
     favorite_list = []

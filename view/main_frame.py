@@ -2,7 +2,7 @@ from enum import Enum
 from tkinter import *
 from view.download_frame import DownloadFrame
 from view.home_frame import HomeFrame
-from view.favorties_frame import FavoritesFrame
+from view.favorites_frame import FavoritesFrame
 from view.settings_frame import SettingsFrame
 
 MENU_WIDTH = 75

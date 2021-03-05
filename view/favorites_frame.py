@@ -1,3 +1,4 @@
+from time import sleep
 from tkinter import *
 from typing import Optional
 
@@ -7,6 +8,7 @@ from util import n_util
 import os
 from tkinter import filedialog
 from util import dir_util
+from util import n_download_util
 
 
 class FavoritesFrame(Frame):
@@ -102,25 +104,29 @@ class FavoritesFrame(Frame):
         self.button_download = Button(master=download_status_frame, text='Download', font=vc.TEXT_FONT)
         self.button_download.pack()
 
-        self.label_entry_progress = Label(master=download_status_frame, text='3/26', font=vc.LABEL_FONT)
+        self.label_entry_progress = Label(master=download_status_frame, text='', font=vc.LABEL_FONT)
         self.label_entry_progress.pack()
 
-        self.label_entry_in_progress = Label(master=download_status_frame, text='144725 - "Nekopara 01"',
+        self.label_entry_in_progress = Label(master=download_status_frame, text='',
                                              font=vc.TEXT_FONT)
         self.label_entry_in_progress.pack()
 
-        self.label_page_progress = Label(master=download_status_frame, text='4/21', font=vc.TEXT_FONT)
+        self.label_page_progress = Label(master=download_status_frame, text='', font=vc.TEXT_FONT)
         self.label_page_progress.pack()
         # --
 
         self.setSessionIdButtonCommand(lambda: onLoad(self))
         self.setDirectoryCommand(lambda: onChoose(self))
+        self.setDownloadCommand(lambda: onDownload(self))
 
     def setSessionIdButtonCommand(self, command):
         self.button_session_id.configure(command=command)
 
     def setDirectoryCommand(self, command):
         self.button_directory.configure(command=command)
+
+    def setDownloadCommand(self, command):
+        self.button_download.configure(command=command)
 
     def addItemToScrollList(self, digits: str, name: str):
         frame = FavoriteEntryFrame(master=self.favorites_scroll_frame, digits=digits, name=name)
@@ -135,6 +141,20 @@ class FavoritesFrame(Frame):
             self.user_fav_count_value.configure(text=self.n_user.fav_count)
             for min_entry in self.n_user.favorite_list:
                 self.addItemToScrollList(digits=min_entry.n_id, name=min_entry.name)
+
+    def updateEntryProgress(self, current_entry: n_util.MinimizedNEntry, current, total):
+        if current <= total:
+            setAndUpdateLabelText(self.label_entry_progress, f'{current} / {total}')
+            setAndUpdateLabelText(self.label_entry_in_progress, f'{current_entry.n_id} - "{current_entry.name}"')
+        else:
+            sleep(1)
+            setAndUpdateLabelText(self.label_entry_progress, '')
+            setAndUpdateLabelText(self.label_entry_in_progress, '')
+            setAndUpdateLabelText(self.label_page_progress, '')
+
+    def updatePageProgress(self, current, total):
+        if current <= total:
+            setAndUpdateLabelText(self.label_page_progress, f'{current} / {total}')
 
 
 def onLoad(favorites_frame: FavoritesFrame):
@@ -155,3 +175,15 @@ def onChoose(favorites_frame: FavoritesFrame):
     filename = filedialog.askdirectory(initialdir=favorites_frame.entry_directory_value.get(), mustexist=True)
     if len(filename) != 0:
         favorites_frame.entry_directory_value.set(filename)
+
+
+def onDownload(favorites_frame: FavoritesFrame):
+    if favorites_frame.n_user is not None:
+        n_download_util.download_all_favorites(favorites_frame.n_user, favorites_frame.entry_directory_value.get(), update_entry=favorites_frame.updateEntryProgress, update_page=favorites_frame.updatePageProgress)
+    else:
+        print('no n_user found')
+
+
+def setAndUpdateLabelText(label: Label, text: str):
+    label.configure(text=text)
+    label.update_idletasks()

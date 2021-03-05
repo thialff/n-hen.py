@@ -138,8 +138,9 @@ class DownloadFrame(Frame):
         self.label_status.update_idletasks()
 
     def updateStatusLabel(self, current, total):
-        self.setStatusLabelText(f'Downloading... {current}/{total}')
-        if current == total:
+        if current <= total:
+            self.setStatusLabelText(f'Downloading... {current}/{total}')
+        else:
             sleep(1)
             self.setStatusLabelText('')
 
