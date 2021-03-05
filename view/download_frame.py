@@ -75,7 +75,7 @@ class DownloadFrame(Frame):
         frame_directory.pack(fill=X)
 
         self.entry_directory_value = StringVar()
-        self.entry_directory_value.set(os.path.join(os.getcwd(), '../saves'))
+        self.entry_directory_value.set(os.path.join(os.getcwd(), 'saves'))
         entry_directory = Entry(master=frame_directory, state=DISABLED, textvariable=self.entry_directory_value)
         entry_directory.grid(row=0, column=0, columnspan=2, sticky='ew')
 
@@ -138,8 +138,9 @@ class DownloadFrame(Frame):
         self.label_status.update_idletasks()
 
     def updateStatusLabel(self, current, total):
-        self.setStatusLabelText(f'Downloading... {current}/{total}')
-        if current == total:
+        if current <= total:
+            self.setStatusLabelText(f'Downloading... {current}/{total}')
+        else:
             sleep(1)
             self.setStatusLabelText('')
 
@@ -165,7 +166,10 @@ def onDownload(download_panel: DownloadFrame):
 
 
 def onChoose(download_panel: DownloadFrame):
+    current_dir_name = download_panel.entry_directory_value.get()
+    du.create_dir_if_not_exists(current_dir_name)
     print('onChoose')
-    filename = filedialog.askdirectory(initialdir=os.path.join(os.getcwd(), '../saves'))
+    filename = filedialog.askdirectory(initialdir=current_dir_name, mustexist=True)
     print(f'directory with path {filename} selected')
-    download_panel.entry_directory_value.set(filename)
+    if len(filename) != 0:
+        download_panel.entry_directory_value.set(filename)

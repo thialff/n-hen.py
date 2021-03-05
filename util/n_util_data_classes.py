@@ -21,9 +21,11 @@ class NEntry:
 class MinimizedNEntry:
     """Holds the id and gallery id of an entry"""
 
-    def __init__(self, n_id: str, gallery_id: str):
+    def __init__(self, n_id: str, gallery_id: str, full_name: str, name: str):
         self.n_id: str = n_id
         self.gallery_id: str = gallery_id
+        self.full_name: str = full_name
+        self.name: str = name
 
     def __str__(self) -> str:
         return str(self.__class__) + ": " + str(self.__dict__)

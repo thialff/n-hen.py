@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.env" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/favorites" />
       <excludeFolder url="file://$MODULE_DIR$/saves" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (n-henpy)" jdkType="Python SDK" />

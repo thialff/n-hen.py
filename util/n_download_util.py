@@ -25,17 +25,25 @@ def save_files_to_dir(file_url_list: List[str], path: str, update=None) -> None:
             update(current, total)
         urllib.request.urlretrieve(file_url, filename)
         current += 1
+    if update is not None:
+        update(current, total)
 
 
-def download_all_favorites(n_user: NUser, base_dir: str) -> None:
+def download_all_favorites(n_user: NUser, base_dir: str, update_entry=None, update_page=None) -> None:
     print('downloading {}\'s {} favorites...'.format(n_user.username, n_user.fav_count))
+    current = 1
+    total = n_user.fav_count
     for min_entry in n_user.favorite_list:
+
+        if update_entry is not None:
+            update_entry(current_entry=min_entry, current=current, total=total)
         print('downloading entry with id {}'.format(min_entry.n_id))
         entry = get_n_entry(min_entry.n_id)
         if entry is None:
             print('no connection possible, skipping...')
             continue
-
+        if update_page is not None:
+            update_page(0, len(entry.image_url_list))
         if not os.path.exists(base_dir):
             print('base directory does not exist, aborting...')
             break
@@ -45,8 +53,12 @@ def download_all_favorites(n_user: NUser, base_dir: str) -> None:
             continue
         else:
             os.mkdir(save_dir)
-        save_files_to_dir(entry.image_url_list, save_dir)
+        save_files_to_dir(entry.image_url_list, save_dir, update=update_page)
         print('waiting for {} seconds...'.format(delay))
         time.sleep(delay)
+        current += 1
+
+    if update_entry is not None:
+        update_entry(current_entry=None, current=current, total=total)
     print('download finished')
 
