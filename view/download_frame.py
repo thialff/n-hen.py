@@ -1,3 +1,4 @@
+import threading
 from time import sleep
 from tkinter import *
 from tkinter import filedialog
@@ -137,12 +138,12 @@ class DownloadFrame(Frame):
         self.label_status_value.set(text)
         self.label_status.update_idletasks()
 
-    def updateStatusLabel(self, current, total):
+    def setStatusLabelTextAsProgress(self, current, total):
         if current <= total:
             self.setStatusLabelText(f'Downloading... {current}/{total}')
-        else:
-            sleep(1)
-            self.setStatusLabelText('')
+            if current == total:
+                sleep(1)
+                self.setStatusLabelText('')
 
 
 def onSearch(download_panel: DownloadFrame):
@@ -162,7 +163,10 @@ def onDownload(download_panel: DownloadFrame):
     du.create_dir_if_not_exists(download_panel.entry_directory_value.get())
     save_dir = os.path.join(download_panel.entry_directory_value.get(), download_panel.entry_file_name_value.get())
     du.create_dir_if_not_exists(save_dir)
-    ndu.save_files_to_dir(download_panel.n_entry.image_url_list, save_dir, download_panel.updateStatusLabel)
+    t = threading.Thread(target=ndu.save_files_to_dir,
+                         kwargs=dict(file_url_list=download_panel.n_entry.image_url_list, path=save_dir,
+                                     update=download_panel.setStatusLabelTextAsProgress, thread_count=8), daemon=True)
+    t.start()
 
 
 def onChoose(download_panel: DownloadFrame):

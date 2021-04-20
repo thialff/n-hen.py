@@ -9,6 +9,7 @@ import os
 from tkinter import filedialog
 from util import dir_util
 from util import n_download_util
+import threading
 
 
 class FavoritesFrame(Frame):
@@ -66,7 +67,8 @@ class FavoritesFrame(Frame):
         self.favorites_scroll_canvas = Canvas(master=favorites_list_frame)
         self.favorites_scroll_canvas.pack(side=LEFT, fill=BOTH, expand=1)
 
-        self.favorites_scrollbar = Scrollbar(master=favorites_list_frame, orient=VERTICAL, command=self.favorites_scroll_canvas.yview)
+        self.favorites_scrollbar = Scrollbar(master=favorites_list_frame, orient=VERTICAL,
+                                             command=self.favorites_scroll_canvas.yview)
         self.favorites_scrollbar.pack(side=RIGHT, fill=Y)
 
         self.favorites_scroll_frame = Frame(master=self.favorites_scroll_canvas)
@@ -142,8 +144,8 @@ class FavoritesFrame(Frame):
             for min_entry in self.n_user.favorite_list:
                 self.addItemToScrollList(digits=min_entry.n_id, name=min_entry.name)
 
-    def updateEntryProgress(self, current_entry: n_util.MinimizedNEntry, current, total):
-        if current <= total:
+    def updateEntryProgress(self, current_entry: n_util.MinimizedNEntry, current: int, total: int):
+        if current <= total and current_entry is not None:
             setAndUpdateLabelText(self.label_entry_progress, f'{current} / {total}')
             setAndUpdateLabelText(self.label_entry_in_progress, f'{current_entry.n_id} - "{current_entry.name}"')
         else:
@@ -155,6 +157,9 @@ class FavoritesFrame(Frame):
     def updatePageProgress(self, current, total):
         if current <= total:
             setAndUpdateLabelText(self.label_page_progress, f'{current} / {total}')
+            if current == total:
+                sleep(0.5)
+                setAndUpdateLabelText(self.label_page_progress, '')
 
 
 def onLoad(favorites_frame: FavoritesFrame):
@@ -179,7 +184,12 @@ def onChoose(favorites_frame: FavoritesFrame):
 
 def onDownload(favorites_frame: FavoritesFrame):
     if favorites_frame.n_user is not None:
-        n_download_util.download_all_favorites(favorites_frame.n_user, favorites_frame.entry_directory_value.get(), update_entry=favorites_frame.updateEntryProgress, update_page=favorites_frame.updatePageProgress)
+        t = threading.Thread(target=n_download_util.download_all_favorites, kwargs=dict(n_user=favorites_frame.n_user,
+                                                                                        base_dir=favorites_frame.entry_directory_value.get(),
+                                                                                        update_entry=favorites_frame.updateEntryProgress,
+                                                                                        update_page=favorites_frame.updatePageProgress,
+                                                                                        thread_count=16))
+        t.start()
     else:
         print('no n_user found')
 
