@@ -38,7 +38,7 @@ class DownloadFrame(Frame):
         frame_info_left = Frame(master=frame_info)
         frame_info_left.pack(side=LEFT)
 
-        self.thumbnail = Image.open('thumb.jpg').resize((200, 300), Image.ANTIALIAS)
+        self.thumbnail = Image.open('thumb.jpg').resize((200, 300))
         self.thumbnail = ImageTk.PhotoImage(self.thumbnail)
         self.label_image_info = Label(master=frame_info_left, image=self.thumbnail, width=200, height=300)
         self.label_image_info.pack()
@@ -119,7 +119,7 @@ class DownloadFrame(Frame):
 
         raw_data = urlopen(entry.cover_url).read()
 
-        self.thumbnail = Image.open(io.BytesIO(raw_data)).resize((200, 300), Image.ANTIALIAS)
+        self.thumbnail = Image.open(io.BytesIO(raw_data)).resize((200, 300))
         self.thumbnail = ImageTk.PhotoImage(self.thumbnail)
         self.label_image_info.configure(image=self.thumbnail)
 
