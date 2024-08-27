@@ -1,6 +1,8 @@
 import urllib.request
 import os
 from typing import List
+
+from util import dir_util
 from util.n_util import NUser
 from util.n_util import get_n_entry
 import time
@@ -84,8 +86,8 @@ def download_all_favorites(n_user: NUser, base_dir: str, update_entry=None, upda
             continue
 
         # check directory is valid
-        if not os.path.exists(base_dir):
-            print('base directory does not exist, aborting...')
+        if not dir_util.create_dir_if_not_exists(base_dir):
+            print('base directory does not exist and could not be created, aborting...')
             break
         save_dir = os.path.join(base_dir, entry.digits)
         if os.path.exists(save_dir):
