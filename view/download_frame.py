@@ -1,14 +1,15 @@
+import io
+import os
 import threading
 from time import sleep
 from tkinter import *
 from tkinter import filedialog
+from urllib.request import urlopen
 
 from PIL import ImageTk, Image
-from view import view_constants as vc
-import os
-from urllib.request import urlopen
-import io
+
 from util import dir_util as du, n_download_util as ndu, n_util
+from view import view_constants as vc
 
 
 class DownloadFrame(Frame):
@@ -163,9 +164,17 @@ def onDownload(download_panel: DownloadFrame):
     du.create_dir_if_not_exists(download_panel.entry_directory_value.get())
     save_dir = os.path.join(download_panel.entry_directory_value.get(), download_panel.entry_file_name_value.get())
     du.create_dir_if_not_exists(save_dir)
-    t = threading.Thread(target=ndu.save_files_to_dir,
-                         kwargs=dict(file_url_list=download_panel.n_entry.image_url_list, path=save_dir,
-                                     update=download_panel.setStatusLabelTextAsProgress, thread_count=8), daemon=True)
+    t = threading.Thread(
+        target=ndu.save_entry_to_dir,
+        kwargs=dict(
+            n_entry=download_panel.n_entry,
+            path=save_dir,
+            update=download_panel.setStatusLabelTextAsProgress,
+            thread_count=8,
+            should_save_info=True
+        ),
+        daemon=True
+    )
     t.start()
 
 

@@ -1,13 +1,16 @@
-import urllib.request
+import json
 import os
+import threading
+import time
+import urllib.request
+from datetime import datetime
 from typing import List
 
 from util import dir_util
-from util.n_util import NUser
-from util.n_util import get_n_entry
-import time
-import threading
 from util.array_util import slice_array
+from util.n_util import NUser, base_url
+from util.n_util import get_n_entry
+from util.n_util_data_classes import NEntry
 
 delay: float = 2.5
 
@@ -68,6 +71,31 @@ def save_files_to_dir(file_url_list: List[str], path: str, update=None, thread_c
             t.join()
 
 
+def save_info(n_entry: NEntry, path: str) -> None:
+    json_string = json.dumps({
+        'url': base_url.format(n_entry.digits),
+        'title': n_entry.title,
+        'artists': sorted(n_entry.artists),
+        'tags': sorted(n_entry.tags),
+        'page_count': n_entry.page_count,
+        'download_timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    }, indent=4)
+    with open(os.path.join(path, 'info.json'), 'w') as f:
+        f.write(json_string)
+
+
+def save_entry_to_dir(n_entry: NEntry, path: str, update=None, thread_count: int = 1, should_save_info=True) -> None:
+    """
+    Saves an entry to the directory specified by path.
+
+    All information will be saved to the directory specified by path,
+    this includes all images of the entry as well as some general information.
+    """
+    if should_save_info:
+        save_info(n_entry, path)
+    save_files_to_dir(n_entry.image_url_list, path, update=update, thread_count=thread_count)
+
+
 def download_all_favorites(n_user: NUser, base_dir: str, update_entry=None, update_page=None, thread_count=1) -> None:
     """Downloads all entries favorited by `n_user` using the number of `thread_count` threads."""
     print('downloading {}\'s {} favorites...'.format(n_user.username, n_user.fav_count))
@@ -98,7 +126,7 @@ def download_all_favorites(n_user: NUser, base_dir: str, update_entry=None, upda
             os.mkdir(save_dir)
 
         # download images
-        save_files_to_dir(entry.image_url_list, save_dir, update=update_page, thread_count=thread_count)
+        save_entry_to_dir(entry, save_dir, update=update_page, thread_count=thread_count, should_save_info=True)
         print('waiting for {} seconds...'.format(delay))
         time.sleep(delay)
         current_entry += 1
