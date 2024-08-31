@@ -94,7 +94,7 @@ def get_n_user(user_auth_cookie: str) -> Optional[NUser]:
     user_name = user_name_match.group(1)
 
     # fav_count
-    fav_count_match = re.search(r'\(([1-9][0-9]*)\)', div_content_header.find('span', class_='count').text)
+    fav_count_match = re.search(r'\(([1-9][0-9]*)\)', div_content_header.find('span', class_='count').text.replace(",", ""))
     if fav_count_match is None:
         return None
     fav_count = int(fav_count_match.group(1))
