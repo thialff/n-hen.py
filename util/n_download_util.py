@@ -54,9 +54,8 @@ def save_files_to_dir(file_url_list: List[str], path: str, update=None, thread_c
     progress = ProgressWrapper(0, len(file_url_list), update)
     progress.update()
 
-    if thread_count < 1 or thread_count > 16:
-        print(f'invalid thread count: {thread_count} not in [1, 16]')
-        return
+    if thread_count < 1:
+        raise ValueError('thread_count must be at least 1')
     else:
         lock = threading.Lock()
         threads = []
